@@ -1,0 +1,153 @@
+﻿package com.mediqueue.ui.home
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.mediqueue.ui.theme.*
+
+@Composable
+fun HomeScreen(
+    viewModel: HomeViewModel,
+    onBookClick: (doctorId: String) -> Unit
+) {
+    LaunchedEffect(Unit) {
+        viewModel.loadDashboardData()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(BackgroundLight)
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "MediQueue Dashboard",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = DarkText,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        if (viewModel.isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = PrimaryGreen)
+            }
+        } else {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
+                    Text(
+                        text = "Your Appointments",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = DarkText
+                    )
+                }
+
+                if (viewModel.appointments.isEmpty()) {
+                    item {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = SoftGreen),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "No active appointments found. Select a doctor below to generate a live token.",
+                                color = DarkText,
+                                fontSize = 14.sp,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                    }
+                } else {
+                    items(viewModel.appointments) { app ->
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Text(
+                                        text = "Token #" + String.format("%03d", app.tokenNumber),
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = PrimaryGreen
+                                    )
+                                    Text(
+                                        text = "Date: ",
+                                        fontSize = 14.sp,
+                                        color = SecondaryText
+                                    )
+                                }
+                                Badge(containerColor = SoftGreen, contentColor = PrimaryGreen) {
+                                    Text(app.status, modifier = Modifier.padding(4.dp))
+                                }
+                            }
+                        }
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Available Doctors",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = DarkText
+                    )
+                }
+
+                items(viewModel.doctors) { doc ->
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(
+                                    text = doc.specialization,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = DarkText
+                                )
+                                Text(
+                                    text = "Fee: PKR ",
+                                    fontSize = 13.sp,
+                                    color = SecondaryText
+                                )
+                            }
+                            Button(
+                                onClick = { onBookClick(doc.id) },
+                                colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text("Book Token")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

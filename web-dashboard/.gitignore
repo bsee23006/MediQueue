@@ -1,0 +1,26 @@
+﻿
+# Secrets & Env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Node modules & dependencies
+node_modules/
+.next/
+out/
+build/
+
+# Android Build & Gradle
+.gradle/
+build/
+app/build/
+*.iml
+.idea/
+local.properties
+
+# System files
+.DS_Store
+Thumbs.db
+
